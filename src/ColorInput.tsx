@@ -1,5 +1,5 @@
 import React from 'react';
-import {RGB} from './color';
+import {RGB} from './util/color';
 
 type ColorInputProps = {
   value: RGB;

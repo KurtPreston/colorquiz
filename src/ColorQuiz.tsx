@@ -1,6 +1,8 @@
 import React, {CSSProperties} from 'react';
-import {randomNamedColor, rgbToHex} from './color';
+import {colorToRGB, randomNamedColor, rgbToHex} from './util/color';
 import {ColorInput} from './ColorInput';
+import {splitCamelCase} from './util/splitCamelCase';
+import {colorDiff} from './util/colorDiff';
 
 type RGB = {
   r: number;
@@ -24,26 +26,29 @@ export class ColorQuiz extends React.Component<{}, Level> {
   }
   
   public render() {
+    const {target, selection} = this.state;
+
     const targetCSS: CSSProperties = {
       height: 200,
       width: 200,
-      backgroundColor: this.state.target
+      backgroundColor: target
     };
     const selectionCSS: CSSProperties = {
       height: 200,
       width: 200,
-      backgroundColor: rgbToHex(this.state.selection)
+      backgroundColor: rgbToHex(selection)
     }
     return (
       <div>
         <div className='color-quiz-target' >
           <div style={targetCSS}/>
-          {this.state.target}
+          {splitCamelCase(target)}
         </div>
         <div className='color-quiz-selection' >
           <div style={selectionCSS}/>
         </div>
-        <ColorInput value={this.state.selection} onChange={(selection) => this.setState({selection})}/>
+        <ColorInput value={selection} onChange={(selection) => this.setState({selection})}/>
+        {colorDiff(colorToRGB(target), selection)}
       </div>
     );
   }
