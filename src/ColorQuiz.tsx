@@ -48,6 +48,7 @@ export class ColorQuiz extends React.Component<{}, Level> {
           <div style={selectionCSS}/>
         </div>
         <ColorInput value={selection} onChange={(selection) => this.setState({selection})}/>
+        {rgbToHex(selection)}<br/>
         {colorDiff(colorToRGB(target), selection)}
       </div>
     );
