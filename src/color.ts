@@ -21,6 +21,11 @@ export function colorToRGB(color: string): RGB {
   }
 }
 
+export function rgbToHex(rgb: RGB): string {
+  const {r, g, b} = rgb;
+  return `#${byteToHex(r)}${byteToHex(g)}${byteToHex(b)}`;
+}
+
 export function byteToHex(num: number): string {
   // Turns a number (0-255) into a 2-character hex number (00-ff)
   return ('0' + num.toString(16)).slice(-2);
@@ -31,8 +36,8 @@ export function colorToHex(color: string): string {
   // Examples:
   // colorToHex('red')            # '#ff0000'
   // colorToHex('rgb(255, 0, 0)') # '#ff0000'
-  const {r, g, b} = colorToRGB(color);
-  return `#${byteToHex(r)}${byteToHex(g)}${byteToHex(b)}`;
+  const rgb = colorToRGB(color);
+  return rgbToHex(rgb);
 }
 
 export function randomNamedColor(): string {
