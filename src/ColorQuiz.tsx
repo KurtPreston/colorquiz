@@ -38,6 +38,33 @@ export class ColorQuiz extends React.Component<{}, Level> {
     });
   }
 
+  private progressIcon(progress: number) {
+    if(progress > 90) {
+      return '😎';
+    }
+    const emojis = [
+      '😢',
+      '😞',
+      '😐',
+      '🙂',
+      '😃',
+      '😄',
+    ];
+    const idx = Math.floor(progress / 90 * emojis.length);
+    return emojis[idx];
+  }
+
+  private progress() {
+    const {selection, target} = this.state;
+    const perc = colorDiffPerc(selection, colorToRGB(target));
+    return (
+      <div>
+        {perc.toFixed(1)}%
+        {this.progressIcon(perc)}
+      </div>
+    )
+  }
+
   public render() {
     const {target, selection} = this.state;
 
@@ -64,7 +91,7 @@ export class ColorQuiz extends React.Component<{}, Level> {
           </div>
         </div>
         <ColorInput value={selection} onChange={(selection) => this.setState({selection})} />
-        {colorDiffPerc(selection, colorToRGB(target)).toFixed(1)}%
+        {this.progress()}
         <div className='actions'>
           <button onClick={() => this.next()}>Next</button>
           <button onClick={() => this.solve()}>Solve</button>
