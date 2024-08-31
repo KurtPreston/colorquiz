@@ -1,0 +1,12 @@
+.color-quiz {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+
+  .color-quiz-target,
+  .color-quiz-selection {
+    margin: 0.5rem;
+    display: inline-block;
+  } 
+}
