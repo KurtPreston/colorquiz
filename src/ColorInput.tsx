@@ -1,5 +1,6 @@
 import React from 'react';
 import {RGB} from './util/color';
+import './ColorInput.scss';
 
 type ColorInputProps = {
   value: RGB;
@@ -35,22 +36,36 @@ export function ColorInput(props: ColorInputProps): React.ReactNode {
 
   const {r, g, b} = value;
   return (
-    <fieldset>
-      <label>
-        Red
-        <input type='range' min={0} max={255} value={r} onChange={onRedChange} />
-      </label>
-
-      <label>
-        Green
-        <input type='range' min={0} max={255} value={g} onChange={onGreenChange} />
-      </label>
-
-      <label>
-        Blue
-        <input type='range' min={0} max={255} value={b} onChange={onBlueChange} />
-      </label>
-
-    </fieldset>
+    <table className='color-input'>
+      <tbody>
+        <tr>
+          <td>Red</td>
+          <td>
+            <input type='range' min={0} max={255} value={r} onChange={onRedChange} />
+          </td>
+          <td>
+            {r}
+          </td>
+        </tr>
+        <tr>
+          <td>Green</td>
+          <td>
+            <input type='range' min={0} max={255} value={g} onChange={onGreenChange} />
+          </td>
+          <td>
+            {g}
+          </td>
+        </tr>
+        <tr>
+          <td>Blue</td>
+          <td>
+            <input type='range' min={0} max={255} value={b} onChange={onBlueChange} />
+          </td>
+          <td>
+            {b}
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }

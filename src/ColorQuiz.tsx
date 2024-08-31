@@ -40,8 +40,8 @@ export class ColorQuiz extends React.Component<{}, Level> {
       backgroundColor: rgbToHex(selection)
     }
     return (
-      <div className='color-quiz'>
-        <div>
+    <div className='color-quiz'>
+        <div className='color-quiz-boxes'>
           <div className='color-quiz-target' >
             <div style={targetCSS}/>
             {splitCamelCase(target)}
