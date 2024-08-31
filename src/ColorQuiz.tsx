@@ -32,14 +32,15 @@ export class ColorQuiz extends React.Component<{}, Level> {
 
   private next() {
     this.setState({
-      target: randomNamedColor()
+      target: randomNamedColor(),
+      solved: false
     });
   }
 
   private solve() {
     this.setState({
       selection: colorToRGB(this.state.target),
-      solved: false
+      solved: true
     });
   }
 
