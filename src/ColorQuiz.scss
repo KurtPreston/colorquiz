@@ -1,0 +1,10 @@
+.color-quiz {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+
+  .color-quiz-target,
+  .color-quiz-selection {
+    display: inline-block;
+  } 
+}

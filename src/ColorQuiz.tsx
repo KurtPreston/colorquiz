@@ -3,6 +3,7 @@ import {colorToRGB, randomNamedColor, rgbToHex} from './util/color';
 import {ColorInput} from './ColorInput';
 import {splitCamelCase} from './util/splitCamelCase';
 import {colorDiff} from './util/colorDiff';
+import './ColorQuiz.scss';
 
 type RGB = {
   r: number;
@@ -39,16 +40,18 @@ export class ColorQuiz extends React.Component<{}, Level> {
       backgroundColor: rgbToHex(selection)
     }
     return (
-      <div>
-        <div className='color-quiz-target' >
-          <div style={targetCSS}/>
-          {splitCamelCase(target)}
-        </div>
-        <div className='color-quiz-selection' >
-          <div style={selectionCSS}/>
+      <div className='color-quiz'>
+        <div>
+          <div className='color-quiz-target' >
+            <div style={targetCSS}/>
+            {splitCamelCase(target)}
+          </div>
+          <div className='color-quiz-selection' >
+            <div style={selectionCSS}/>
+            {rgbToHex(selection)}
+          </div>
         </div>
         <ColorInput value={selection} onChange={(selection) => this.setState({selection})}/>
-        {rgbToHex(selection)}<br/>
         {colorDiff(colorToRGB(target), selection)}
       </div>
     );
