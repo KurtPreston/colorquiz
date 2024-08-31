@@ -1,4 +1,6 @@
 import React, {CSSProperties} from 'react';
+import confetti from 'canvas-confetti';
+
 import {colorToRGB, randomNamedColor, rgbToHex} from './util/color';
 import {ColorInput} from './ColorInput';
 import {splitCamelCase} from './util/splitCamelCase';
@@ -14,6 +16,7 @@ type RGB = {
 type Level = {
   target: string;
   selection: RGB;
+  solved: boolean;
 };
 
 export class ColorQuiz extends React.Component<{}, Level> {
@@ -23,7 +26,8 @@ export class ColorQuiz extends React.Component<{}, Level> {
       r: 0,
       g: 0,
       b: 0
-    }
+    },
+    solved: false
   };
 
   private next() {
@@ -34,7 +38,8 @@ export class ColorQuiz extends React.Component<{}, Level> {
 
   private solve() {
     this.setState({
-      selection: colorToRGB(this.state.target)
+      selection: colorToRGB(this.state.target),
+      solved: false
     });
   }
 
@@ -54,15 +59,44 @@ export class ColorQuiz extends React.Component<{}, Level> {
     return emojis[idx];
   }
 
-  private progress() {
-    const {selection, target} = this.state;
-    const perc = colorDiffPerc(selection, colorToRGB(target));
+  private percentAccuracy(guess: RGB) {
+    const {target} = this.state;
+    const perc = colorDiffPerc(guess, colorToRGB(target));
+    return perc;
+  }
+
+  private progressMeter() {
+    const perc = this.percentAccuracy(this.state.selection);
     return (
       <div>
         {perc.toFixed(1)}%
         {this.progressIcon(perc)}
       </div>
     )
+  }
+
+  private triggerSolveAnimation() {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+
+  private updateSelection(rgb: RGB) {
+    const currentPerc = this.percentAccuracy(this.state.selection);
+    const nextPerc = this.percentAccuracy(rgb);
+    if(!this.state.solved && currentPerc < 90 && nextPerc >= 90) {
+      this.triggerSolveAnimation();
+      this.setState({
+        selection: rgb,
+        solved: true
+      });
+    } else {
+      this.setState({
+        selection: rgb
+      });
+    }
   }
 
   public render() {
@@ -90,8 +124,8 @@ export class ColorQuiz extends React.Component<{}, Level> {
             {rgbToHex(selection)}
           </div>
         </div>
-        <ColorInput value={selection} onChange={(selection) => this.setState({selection})} />
-        {this.progress()}
+        <ColorInput value={selection} onChange={(selection) => this.updateSelection(selection)} />
+        {this.progressMeter()}
         <div className='actions'>
           <button onClick={() => this.next()}>Next</button>
           <button onClick={() => this.solve()}>Solve</button>
