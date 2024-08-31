@@ -33,7 +33,7 @@ export class ColorQuiz extends React.Component<{}, Level> {
   private next() {
     this.setState({
       target: randomNamedColor()
-    })
+    });
   }
 
   private solve() {
@@ -44,18 +44,11 @@ export class ColorQuiz extends React.Component<{}, Level> {
   }
 
   private progressIcon(progress: number) {
-    if(progress > 90) {
+    if (progress > 90) {
       return '😎';
     }
-    const emojis = [
-      '😢',
-      '😞',
-      '😐',
-      '🙂',
-      '😃',
-      '😄',
-    ];
-    const idx = Math.floor(progress / 90 * emojis.length);
+    const emojis = ['😢', '😞', '😐', '🙂', '😃', '😄'];
+    const idx = Math.floor((progress / 90) * emojis.length);
     return emojis[idx];
   }
 
@@ -69,24 +62,23 @@ export class ColorQuiz extends React.Component<{}, Level> {
     const perc = this.percentAccuracy(this.state.selection);
     return (
       <div>
-        {perc.toFixed(1)}%
-        {this.progressIcon(perc)}
+        {perc.toFixed(1)}%{this.progressIcon(perc)}
       </div>
-    )
+    );
   }
 
   private triggerSolveAnimation() {
     confetti({
       particleCount: 100,
       spread: 70,
-      origin: { y: 0.6 }
+      origin: {y: 0.6}
     });
   }
 
   private updateSelection(rgb: RGB) {
     const currentPerc = this.percentAccuracy(this.state.selection);
     const nextPerc = this.percentAccuracy(rgb);
-    if(!this.state.solved && currentPerc < 90 && nextPerc >= 90) {
+    if (!this.state.solved && currentPerc < 90 && nextPerc >= 90) {
       this.triggerSolveAnimation();
       this.setState({
         selection: rgb,
