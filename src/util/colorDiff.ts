@@ -8,3 +8,21 @@ export function colorDiff(a: RGB, b: RGB): number {
     Math.pow(b.b - a.b, 2)
   );
 }
+
+export function colorDiffPerc(guess: RGB, target: RGB): number {
+  const actualDistance = colorDiff(guess, target);
+  const corners = [];
+  for(const r of [0, 255]) {
+    for(const g of [0, 255]) {
+      for(const b of [0, 255]) {
+        corners.push({r, g, b});
+      }
+    }
+  }
+  const maxDistance = Math.max(...corners.map((corner) => (
+    colorDiff(corner, target)
+  )));
+
+  const ratio = actualDistance / maxDistance;
+  return (1 - ratio) * 100;
+}

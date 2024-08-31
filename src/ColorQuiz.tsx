@@ -2,7 +2,7 @@ import React, {CSSProperties} from 'react';
 import {colorToRGB, randomNamedColor, rgbToHex} from './util/color';
 import {ColorInput} from './ColorInput';
 import {splitCamelCase} from './util/splitCamelCase';
-import {colorDiff} from './util/colorDiff';
+import {colorDiffPerc} from './util/colorDiff';
 import './ColorQuiz.scss';
 
 type RGB = {
@@ -14,7 +14,7 @@ type RGB = {
 type Level = {
   target: string;
   selection: RGB;
-}
+};
 
 export class ColorQuiz extends React.Component<{}, Level> {
   public state: Level = {
@@ -24,8 +24,14 @@ export class ColorQuiz extends React.Component<{}, Level> {
       g: 0,
       b: 0
     }
+  };
+
+  private solve() {
+    this.setState({
+      selection: colorToRGB(this.state.target)
+    });
   }
-  
+
   public render() {
     const {target, selection} = this.state;
 
@@ -38,21 +44,22 @@ export class ColorQuiz extends React.Component<{}, Level> {
       height: 200,
       width: 200,
       backgroundColor: rgbToHex(selection)
-    }
+    };
     return (
-    <div className='color-quiz'>
+      <div className='color-quiz'>
         <div className='color-quiz-boxes'>
-          <div className='color-quiz-target' >
-            <div style={targetCSS}/>
+          <div className='color-quiz-target'>
+            <div style={targetCSS} />
             {splitCamelCase(target)}
           </div>
-          <div className='color-quiz-selection' >
-            <div style={selectionCSS}/>
+          <div className='color-quiz-selection'>
+            <div style={selectionCSS} />
             {rgbToHex(selection)}
           </div>
         </div>
-        <ColorInput value={selection} onChange={(selection) => this.setState({selection})}/>
-        {colorDiff(colorToRGB(target), selection)}
+        <ColorInput value={selection} onChange={(selection) => this.setState({selection})} />
+        {colorDiffPerc(selection, colorToRGB(target)).toFixed(1)}%
+        <button onClick={() => this.solve()}>Solve</button>
       </div>
     );
   }
