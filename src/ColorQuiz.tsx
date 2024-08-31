@@ -26,6 +26,12 @@ export class ColorQuiz extends React.Component<{}, Level> {
     }
   };
 
+  private next() {
+    this.setState({
+      target: randomNamedColor()
+    })
+  }
+
   private solve() {
     this.setState({
       selection: colorToRGB(this.state.target)
@@ -59,7 +65,10 @@ export class ColorQuiz extends React.Component<{}, Level> {
         </div>
         <ColorInput value={selection} onChange={(selection) => this.setState({selection})} />
         {colorDiffPerc(selection, colorToRGB(target)).toFixed(1)}%
-        <button onClick={() => this.solve()}>Solve</button>
+        <div className='actions'>
+          <button onClick={() => this.next()}>Next</button>
+          <button onClick={() => this.solve()}>Solve</button>
+        </div>
       </div>
     );
   }
