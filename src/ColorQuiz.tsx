@@ -6,15 +6,19 @@ import {ColorInput} from './ColorInput';
 import {splitCamelCase} from './util/splitCamelCase';
 import {colorDiffPerc} from './util/colorDiff';
 import './ColorQuiz.scss';
+import {mean} from './util/mean';
+
+const NUM_LEVELS = 10;
 
 enum ColorQuizMode {
   practice,
   guessing,
-  submitted
+  submitted,
+  viewResults
 }
 
 type State = {
-  mode: ColorQuizMode,
+  mode: ColorQuizMode;
   target: string;
   selection: RGB;
   history: {
@@ -58,6 +62,13 @@ export class ColorQuiz extends React.Component<void, State> {
     });
   }
 
+  private viewResults() {
+    this.setState({
+      mode: ColorQuizMode.viewResults
+    });
+  }
+
+
   private solve() {
     this.setState({
       selection: colorToRGB(this.state.target)
@@ -73,7 +84,7 @@ export class ColorQuiz extends React.Component<void, State> {
         target
       }
     ];
-    if(this.percentAccuracy(selection) > 90) {
+    if (this.percentAccuracy(selection) > 90) {
       this.triggerSolveAnimation();
     }
     this.setState({
@@ -85,15 +96,15 @@ export class ColorQuiz extends React.Component<void, State> {
   private progressIcon(progress: number) {
     if (progress > 90) {
       return '😎';
-    } else if(progress > 80) {
-      return '😄'
-    } else if(progress > 70) {
-      return '😃'
-    } else if(progress > 60) {
+    } else if (progress > 80) {
+      return '😄';
+    } else if (progress > 70) {
+      return '😃';
+    } else if (progress > 60) {
       return '🙂';
-    } else if(progress > 40) {
+    } else if (progress > 40) {
       return '😐';
-    } else if(progress > 20) {
+    } else if (progress > 20) {
       return '😞';
     } else {
       return '🙈'; // 😢
@@ -108,9 +119,7 @@ export class ColorQuiz extends React.Component<void, State> {
 
   private renderInput() {
     const {mode, selection, target} = this.state;
-    const extraCol = mode === ColorQuizMode.submitted
-      ? colorToRGB(target)
-      : undefined;
+    const extraCol = mode === ColorQuizMode.submitted ? colorToRGB(target) : undefined;
     return (
       <ColorInput
         disabled={mode === ColorQuizMode.submitted}
@@ -123,15 +132,11 @@ export class ColorQuiz extends React.Component<void, State> {
 
   private renderAccuracy() {
     const {mode} = this.state;
-    if(mode === ColorQuizMode.guessing) {
+    if (mode === ColorQuizMode.guessing) {
       return null;
     } else {
-      const perc = this.percentAccuracy(this.state.selection);
-      return (
-        <div>
-          Accuracy: {perc.toFixed(1)}%{this.progressIcon(perc)}
-        </div>
-      );
+      const pct = this.percentAccuracy(this.state.selection);
+      return <div>Accuracy: {this.renderPct(pct)}</div>;
     }
   }
 
@@ -150,26 +155,36 @@ export class ColorQuiz extends React.Component<void, State> {
   }
 
   private renderActions() {
-    const {mode} = this.state;
-    if(mode === ColorQuizMode.practice) {
+    const {history, mode} = this.state;
+    if (mode === ColorQuizMode.practice) {
       return (
         <div className='actions'>
           <button onClick={() => this.nextPractice()}>Try Another</button>
           <button onClick={() => this.solve()}>Solve</button>
+          <br/>
+          <button onClick={() => this.beginChallenge()}>🔥 BEGIN CHALLENGE 🔥</button>
         </div>
       );
-    } else if(mode === ColorQuizMode.guessing) {
+    } else if (mode === ColorQuizMode.guessing) {
       return (
         <div className='actions'>
           <button onClick={() => this.submit()}>Submit</button>
         </div>
       );
-    } else if(mode === ColorQuizMode.submitted) {
-      return (
-        <div className='actions'>
-          <button onClick={() => this.nextLevel()}>Next</button>
-        </div>
-      )
+    } else if (mode === ColorQuizMode.submitted) {
+      if (history.length >= NUM_LEVELS) {
+        return (
+          <div className='actions'>
+            <button onClick={() => this.viewResults()}>View Results</button>
+          </div>
+        );
+      } else {
+        return (
+          <div className='actions'>
+            <button onClick={() => this.nextLevel()}>Next</button>
+          </div>
+        );
+      }
     } else {
       throw new Error(`Unepxected mode ${mode}`);
     }
@@ -177,6 +192,7 @@ export class ColorQuiz extends React.Component<void, State> {
 
   private beginChallenge() {
     this.setState({
+      history: [],
       mode: ColorQuizMode.guessing,
       target: randomNamedColor(),
       selection: {
@@ -189,45 +205,31 @@ export class ColorQuiz extends React.Component<void, State> {
 
   private renderInstructions() {
     const {history, mode} = this.state;
-    if(mode === ColorQuizMode.practice) {
+    if (mode === ColorQuizMode.practice) {
       return (
         <p>
-          Adjust the sliders to match the color. When you've had enough practice, click the button below.
-          <br />
-          <button onClick={() => this.beginChallenge()}>🔥 BEGIN CHALLENGE 🔥</button>
+          Adjust the sliders to match the color.
         </p>
       );
-    } else if(mode === ColorQuizMode.guessing) {
-      return (
-        <h4>
-          Level {history.length + 1}
-        </h4>
-      )
+    } else if (mode === ColorQuizMode.guessing) {
+      return <h4>Level {history.length + 1}</h4>;
     } else if (mode === ColorQuizMode.submitted) {
-      return (
-        <h4>
-          Level {history.length}
-        </h4>
-      )
+      return <h4>Level {history.length}</h4>;
     } else {
       throw new Error(`Unexpected mode ${mode}`);
     }
   }
 
-  public render() {
+  private renderGame() {
     const {target, selection, mode} = this.state;
 
     const targetCSS: CSSProperties = {
       backgroundColor: target
     };
-    const guessing = mode === ColorQuizMode.guessing
+    const guessing = mode === ColorQuizMode.guessing;
     const selectionCSS: CSSProperties = {
-      backgroundColor: guessing
-        ? undefined
-        : rgbToHex(selection),
-      outline: guessing
-        ? `1px solid ${target}`
-        : undefined
+      backgroundColor: guessing ? undefined : rgbToHex(selection),
+      outline: guessing ? `1px solid ${target}` : undefined
     };
     return (
       <div className='color-quiz'>
@@ -235,11 +237,13 @@ export class ColorQuiz extends React.Component<void, State> {
         {this.renderInstructions()}
         <div className='color-quiz-boxes'>
           <div className='color-quiz-target'>
-            <div style={targetCSS} className='colorbox'/>
+            <div style={targetCSS} className='colorbox' />
             {splitCamelCase(target)}
           </div>
           <div className='color-quiz-selection'>
-            <div style={selectionCSS} className='colorbox'>{guessing && '?'}</div>
+            <div style={selectionCSS} className='colorbox'>
+              {guessing && '?'}
+            </div>
             {rgbToHex(selection)}
           </div>
         </div>
@@ -248,5 +252,64 @@ export class ColorQuiz extends React.Component<void, State> {
         {this.renderActions()}
       </div>
     );
+  }
+
+  private renderPct(pct: number) {
+    return (
+      <>
+        {pct.toFixed(1)}%{this.progressIcon(pct)}
+      </>
+    );
+  }
+
+  private renderResults() {
+    const {history} = this.state;
+    const accuracyPercs = history.map(({selection, target}) =>
+      colorDiffPerc(selection, colorToRGB(target))
+    );
+    const avgAccuracy = mean(accuracyPercs);
+    return (
+      <div className='color-quiz-results'>
+        <h3>Avg Accuracy: {this.renderPct(avgAccuracy)}</h3>
+        <table>
+          <thead>
+            <th />
+            <th>Target</th>
+            <th>Guess</th>
+            <th>Accuracy</th>
+          </thead>
+          <tbody>
+            {history.map(({selection, target}, i) => {
+              const pct = colorDiffPerc(selection, colorToRGB(target));
+              return (
+                <tr>
+                  <td>Level {i + 1}</td>
+                  <td>
+                    <div style={{backgroundColor: target}} className='colorbox' />
+                    {splitCamelCase(target)}
+                  </td>
+                  <td>
+                    <div style={{backgroundColor: rgbToHex(selection)}} className='colorbox' />
+                    {rgbToHex(selection)}
+                  </td>
+                  <td>{pct.toFixed(1)}%</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div className='actions'>
+          <button onClick={() => this.beginChallenge()}>Play Again</button>
+        </div>
+      </div>
+    );
+  }
+
+  public render() {
+    if (this.state.mode === ColorQuizMode.viewResults) {
+      return this.renderResults();
+    } else {
+      return this.renderGame();
+    }
   }
 }
