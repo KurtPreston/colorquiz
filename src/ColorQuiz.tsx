@@ -85,10 +85,19 @@ export class ColorQuiz extends React.Component<void, State> {
   private progressIcon(progress: number) {
     if (progress > 90) {
       return '😎';
+    } else if(progress > 80) {
+      return '😄'
+    } else if(progress > 70) {
+      return '😃'
+    } else if(progress > 60) {
+      return '🙂';
+    } else if(progress > 40) {
+      return '😐';
+    } else if(progress > 20) {
+      return '😞';
+    } else {
+      return '🙈'; // 😢
     }
-    const emojis = ['😢', '😞', '😐', '🙂', '😃', '😄'];
-    const idx = Math.floor((progress / 90) * emojis.length);
-    return emojis[idx];
   }
 
   private percentAccuracy(guess: RGB) {
