@@ -35,7 +35,18 @@ export class ColorQuiz extends React.Component<void, State> {
     mode: ColorQuizMode.practice
   };
 
-  private next() {
+  private nextPractice() {
+    this.setState({
+      target: randomNamedColor(),
+      selection: {
+        r: 0,
+        g: 0,
+        b: 0
+      }
+    });
+  }
+
+  private nextLevel() {
     this.setState({
       mode: ColorQuizMode.guessing,
       target: randomNamedColor(),
@@ -86,7 +97,7 @@ export class ColorQuiz extends React.Component<void, State> {
     return perc;
   }
 
-  private progressMeter() {
+  private renderAccuracy() {
     const {mode} = this.state;
     if(mode === ColorQuizMode.guessing) {
       return null;
@@ -94,7 +105,7 @@ export class ColorQuiz extends React.Component<void, State> {
       const perc = this.percentAccuracy(this.state.selection);
       return (
         <div>
-          {perc.toFixed(1)}%{this.progressIcon(perc)}
+          Accuracy: {perc.toFixed(1)}%{this.progressIcon(perc)}
         </div>
       );
     }
@@ -119,7 +130,7 @@ export class ColorQuiz extends React.Component<void, State> {
     if(mode === ColorQuizMode.practice) {
       return (
         <div className='actions'>
-          <button onClick={() => this.next()}>Next</button>
+          <button onClick={() => this.nextPractice()}>Try Another</button>
           <button onClick={() => this.solve()}>Solve</button>
         </div>
       );
@@ -132,7 +143,7 @@ export class ColorQuiz extends React.Component<void, State> {
     } else if(mode === ColorQuizMode.submitted) {
       return (
         <div className='actions'>
-          <button onClick={() => this.next()}>Next</button>
+          <button onClick={() => this.nextLevel()}>Next</button>
         </div>
       )
     } else {
@@ -162,12 +173,20 @@ export class ColorQuiz extends React.Component<void, State> {
           <button onClick={() => this.beginChallenge()}>🔥 BEGIN CHALLENGE 🔥</button>
         </p>
       );
-    } else {
+    } else if(mode === ColorQuizMode.guessing) {
       return (
-        <p>
-          Level {history.length}
-        </p>
+        <h4>
+          Level {history.length + 1}
+        </h4>
       )
+    } else if (mode === ColorQuizMode.submitted) {
+      return (
+        <h4>
+          Level {history.length}
+        </h4>
+      )
+    } else {
+      throw new Error(`Unexpected mode ${mode}`);
     }
   }
 
@@ -201,7 +220,7 @@ export class ColorQuiz extends React.Component<void, State> {
           </div>
         </div>
         <ColorInput value={selection} onChange={(selection) => this.updateSelection(selection)} />
-        {this.progressMeter()}
+        {this.renderAccuracy()}
         {this.renderActions()}
       </div>
     );
