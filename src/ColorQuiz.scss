@@ -8,11 +8,14 @@
   .color-quiz-selection {
     margin: 0.5rem;
     display: inline-block;
-  }
 
-  .actions {
-    button {
-      margin: 0.25rem;
+    .colorbox {
+      width: 200px;
+      height: 200px;
+      font-size: 5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 }

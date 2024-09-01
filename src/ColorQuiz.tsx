@@ -13,34 +13,49 @@ type RGB = {
   b: number;
 };
 
-type Level = {
+type State = {
+  // State
+  started: boolean;
+  guessing: boolean;
+
   target: string;
   selection: RGB;
-  solved: boolean;
+  history: {
+    target: string;
+    selection: RGB;
+  }[];
 };
 
-export class ColorQuiz extends React.Component<{}, Level> {
-  public state: Level = {
+export class ColorQuiz extends React.Component<{}, State> {
+  public state: State = {
     target: randomNamedColor(),
     selection: {
       r: 0,
       g: 0,
       b: 0
     },
-    solved: false
+    guessing: true,
+    history: [],
+    started: false
   };
 
   private next() {
     this.setState({
       target: randomNamedColor(),
-      solved: false
+      guessing: true
     });
   }
 
   private solve() {
     this.setState({
       selection: colorToRGB(this.state.target),
-      solved: true
+      guessing: false
+    });
+  }
+
+  private submit() {
+    this.setState({
+      guessing: false
     });
   }
 
@@ -60,12 +75,16 @@ export class ColorQuiz extends React.Component<{}, Level> {
   }
 
   private progressMeter() {
-    const perc = this.percentAccuracy(this.state.selection);
-    return (
-      <div>
-        {perc.toFixed(1)}%{this.progressIcon(perc)}
-      </div>
-    );
+    if(!this.state.started || !this.state.guessing) {
+      const perc = this.percentAccuracy(this.state.selection);
+      return (
+        <div>
+          {perc.toFixed(1)}%{this.progressIcon(perc)}
+        </div>
+      );
+    } else {
+      return null;
+    }
   }
 
   private triggerSolveAnimation() {
@@ -79,11 +98,11 @@ export class ColorQuiz extends React.Component<{}, Level> {
   private updateSelection(rgb: RGB) {
     const currentPerc = this.percentAccuracy(this.state.selection);
     const nextPerc = this.percentAccuracy(rgb);
-    if (!this.state.solved && currentPerc < 90 && nextPerc >= 90) {
+    if (!this.state.started && this.state.guessing && currentPerc < 90 && nextPerc >= 90) {
       this.triggerSolveAnimation();
       this.setState({
         selection: rgb,
-        solved: true
+        guessing: false
       });
     } else {
       this.setState({
@@ -92,37 +111,78 @@ export class ColorQuiz extends React.Component<{}, Level> {
     }
   }
 
+  private renderActions() {
+    if(this.state.started) {
+      return (
+        <div className='actions'>
+          <button onClick={() => this.submit()}>Submit</button>
+        </div>
+      )
+    } else {
+      return (
+        <div className='actions'>
+          <button onClick={() => this.next()}>Next</button>
+          <button onClick={() => this.solve()}>Solve</button>
+        </div>
+      )
+    }
+  }
+
+  private beginChallenge() {
+    this.setState({
+      started: true
+    });
+  }
+
+  private renderInstructions() {
+    const {history, started} = this.state;
+    if (started) {
+      return (
+        <p>
+          Level {history.length + 1}
+        </p>
+      )
+    } else {
+      return (
+        <p>
+          Adjust the sliders to match the color. When you've had enough practice, click the button
+          to begin the
+          <br />
+          <button onClick={() => this.beginChallenge()}>🔥 CHALLENGE 🔥</button>
+        </p>
+      );
+    }
+  }
+
   public render() {
-    const {target, selection} = this.state;
+    const {target, selection, started} = this.state;
 
     const targetCSS: CSSProperties = {
-      height: 200,
-      width: 200,
       backgroundColor: target
     };
     const selectionCSS: CSSProperties = {
-      height: 200,
-      width: 200,
-      backgroundColor: rgbToHex(selection)
+      backgroundColor: started ? undefined : rgbToHex(selection),
+      outline: started
+        ? `1px solid ${target}`
+        : undefined
     };
     return (
       <div className='color-quiz'>
+        <h3>rgb</h3>
+        {this.renderInstructions()}
         <div className='color-quiz-boxes'>
           <div className='color-quiz-target'>
-            <div style={targetCSS} />
+            <div style={targetCSS} className='colorbox'/>
             {splitCamelCase(target)}
           </div>
           <div className='color-quiz-selection'>
-            <div style={selectionCSS} />
+            <div style={selectionCSS} className='colorbox'>{started && '?'}</div>
             {rgbToHex(selection)}
           </div>
         </div>
         <ColorInput value={selection} onChange={(selection) => this.updateSelection(selection)} />
         {this.progressMeter()}
-        <div className='actions'>
-          <button onClick={() => this.next()}>Next</button>
-          <button onClick={() => this.solve()}>Solve</button>
-        </div>
+        {this.renderActions()}
       </div>
     );
   }
