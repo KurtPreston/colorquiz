@@ -27,7 +27,7 @@ type State = {
   }[];
 };
 
-export class ColorQuiz extends React.Component<void, State> {
+export class ColorQuiz extends React.Component<{}, State> {
   public state: State = {
     target: randomNamedColor(),
     selection: {
