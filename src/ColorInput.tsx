@@ -5,10 +5,12 @@ import './ColorInput.scss';
 type ColorInputProps = {
   value: RGB;
   onChange: (value: RGB) => void;
+  disabled?: boolean;
+  extraCol?: RGB;
 };
 
 export function ColorInput(props: ColorInputProps): React.ReactNode {
-  const {value, onChange} = props;
+  const {disabled, value, onChange, extraCol} = props;
 
   function onRedChange(event: React.ChangeEvent<HTMLInputElement>) {
     const color: RGB = {
@@ -41,29 +43,32 @@ export function ColorInput(props: ColorInputProps): React.ReactNode {
         <tr>
           <td>Red</td>
           <td>
-            <input type='range' min={0} max={255} value={r} onChange={onRedChange} />
+            <input type='range' min={0} max={255} value={r} onChange={onRedChange} disabled={disabled}/>
           </td>
           <td>
             {r}
           </td>
+          {extraCol && <td>{extraCol.r}</td>}
         </tr>
         <tr>
           <td>Green</td>
           <td>
-            <input type='range' min={0} max={255} value={g} onChange={onGreenChange} />
+            <input type='range' min={0} max={255} value={g} onChange={onGreenChange} disabled={disabled}/>
           </td>
           <td>
             {g}
           </td>
+          {extraCol && <td>{extraCol.g}</td>}
         </tr>
         <tr>
           <td>Blue</td>
           <td>
-            <input type='range' min={0} max={255} value={b} onChange={onBlueChange} />
+            <input type='range' min={0} max={255} value={b} onChange={onBlueChange} disabled={disabled}/>
           </td>
           <td>
             {b}
           </td>
+          {extraCol && <td>{extraCol.b}</td>}
         </tr>
       </tbody>
     </table>

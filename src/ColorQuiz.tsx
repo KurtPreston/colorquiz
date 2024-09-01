@@ -97,6 +97,21 @@ export class ColorQuiz extends React.Component<void, State> {
     return perc;
   }
 
+  private renderInput() {
+    const {mode, selection, target} = this.state;
+    const extraCol = mode === ColorQuizMode.submitted
+      ? colorToRGB(target)
+      : undefined;
+    return (
+      <ColorInput
+        disabled={mode === ColorQuizMode.submitted}
+        value={selection}
+        onChange={(selection) => this.updateSelection(selection)}
+        extraCol={extraCol}
+      />
+    );
+  }
+
   private renderAccuracy() {
     const {mode} = this.state;
     if(mode === ColorQuizMode.guessing) {
@@ -219,7 +234,7 @@ export class ColorQuiz extends React.Component<void, State> {
             {rgbToHex(selection)}
           </div>
         </div>
-        <ColorInput value={selection} onChange={(selection) => this.updateSelection(selection)} />
+        {this.renderInput()}
         {this.renderAccuracy()}
         {this.renderActions()}
       </div>
